@@ -7,10 +7,11 @@ import { Link, useLoaderData } from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
-    const [cart, setCart] = useState([])
-    const {count} = useLoaderData();
+    const [cart, setCart] = useState([]);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(0)
+    const { count } = useLoaderData();
     console.log(count);
-    const itemsPerPage = 10;
     const numberOfPages = Math.ceil(count / itemsPerPage)
 
     // const pages = [];
@@ -21,6 +22,23 @@ const Shop = () => {
 
     const pages = [...Array(numberOfPages).keys()];
     console.log(pages);
+    const handleItemsPerPage = e => {
+        const val = parseInt(e.target.value);
+        setItemsPerPage(val);
+        setCurrentPage(0);
+    }
+
+    const handlePrevPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1)
+        }
+    }
+
+    const handleNextPage = () => {
+        if(currentPage < pages.length - 1) {
+            setCurrentPage(currentPage + 1)
+        }
+    }
 
     useEffect(() => {
         fetch('http://localhost:5000/products')
@@ -95,10 +113,23 @@ const Shop = () => {
                     </Link>
                 </Cart>
             </div>
-            <div>
+            <div className='pagination'>
+                <p>Current page: {currentPage}</p>
+                <button onClick={handlePrevPage}>Prev</button>
                 {
-                    pages.map(page => <button className='pagination' key={page}>{page}</button>)
+                    pages.map(page => <button
+                        onClick={() => setCurrentPage(page)}
+                        className={currentPage === page && 'selected'}
+                        key={page}
+                    >{page}</button>)
                 }
+                <button onClick={handleNextPage}>Next</button>
+                <select value={itemsPerPage} onChange={handleItemsPerPage} name="" id="">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
             </div>
         </div>
     );
